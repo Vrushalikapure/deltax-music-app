@@ -1,6 +1,6 @@
 <% for(var i = 0; i < songs.length; i++) { %>
     <tr>
-        <td><img src="data:image/jpeg;base64,<%=songs[i].img.data.toString('base64')%>"></td>
+        <td><img style="width:100px;height:100px;;top:0;" src="http://localhost:3000/api/songs/<%=songs[i]._id%>/image"></td>
         <td><%= songs[i].name %></td>
         <td><%= songs[i].DOR %></td>
         <td><%= songs[i].artists.map(function(el) {

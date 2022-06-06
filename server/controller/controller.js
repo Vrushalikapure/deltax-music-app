@@ -1,8 +1,8 @@
-var {SongDb, ArtistDb} = require('../model/model');
+var {SongDb, ArtistDb, UserDb} = require('../model/model');
 const fs = require("fs");
 const path = require('path');
 const res = require('express/lib/response');
-
+const bcrypt = require("bcryptjs");
 
 // create and save new song
 exports.createSong = (req,res)=>{
@@ -154,9 +154,7 @@ exports.findTop10Songs = (req, res)=>{
     SongDb.find().sort({"rating":-1}).limit(10)
     .populate("artists", "name")
             .then(songs => {
-                for (let i = 0; i < songs.length; i++) {
-                    songs[i].img.val = songs[i].img.toString('base64');
-                  }
+               
                 
                 res.send(songs)
             })
@@ -221,6 +219,25 @@ exports.updateSongRating = (req, res)=>{
         .catch(err =>{
             res.status(500).send({ message: "Erro retrieving song with id " + id})
         })
+}
+
+
+
+
+exports.getSongImage = (req, res)=>{
+    const id = req.params.id;
+
+    SongDb.findById(id)
+            .then(data =>{
+                if(!data){
+                    res.status(404).send({ message : "Not found song with id "+ id})
+                }else{
+                    res.send(data.img)
+                }
+            })
+            .catch(err =>{
+                res.status(500).send({ message: "Erro retrieving song with id " + id})
+            });
 }
 
 ///////////////////////////////////////////////////////////////
@@ -347,3 +364,51 @@ exports.findTop10Artists = (req, res)=>{
         })
 
 }
+
+///////////////////////////////////////////////////
+
+  
+  exports.login = async (req, res) => {
+    const { email, password } = req.body;
+  
+    const user = await UserDb.findOne({ email });
+  
+    if (!user) {
+      req.session.error = "Invalid Credentials";
+      return res.redirect("/login");
+    }
+  
+    const isMatch = await bcrypt.compare(password, user.password);
+  
+    if (!isMatch) {
+      req.session.error = "Invalid Credentials";
+      return res.redirect("/login");
+    }
+  
+    req.session.isAuth = true;
+    req.session.username = user.username;
+    res.redirect("/");
+  };
+  
+  
+  exports.register = async (req, res) => {
+    const { username, email, password } = req.body;
+  
+    let user = await UserDb.findOne({ email });
+  
+    if (user) {
+      req.session.error = "User already exists";
+      return res.redirect("/register");
+    }
+  
+    const hasdPsw = await bcrypt.hash(password, 12);
+  
+    user = new UserDb({
+      username,
+      email,
+      password: hasdPsw,
+    });
+  
+    await user.save();
+    res.redirect("/login");
+  };

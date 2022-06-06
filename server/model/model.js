@@ -42,7 +42,24 @@ var Song = new mongoose.Schema({
     rating : Number
 })
 
+const User = new mongoose.Schema({
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+  });
+
 const SongDb = mongoose.model('Song', Song);
 const ArtistDb = mongoose.model('Artist', Artist);
+const UserDb = mongoose.model('User', User);
 
-module.exports = {SongDb, ArtistDb};
+module.exports = {SongDb, ArtistDb, UserDb};

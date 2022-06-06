@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const bodyparser = require("body-parser");
 const path = require('path');
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const connectDB = require('./server/database/connection');
 
@@ -12,6 +14,21 @@ const PORT = process.env.PORT || 8080
 
 // mongodb connection
 connectDB();
+
+const store = new MongoDBStore({
+    uri: process.env.MONGO_URI,
+    collection: "mySessions",
+  });
+  
+app.use(
+session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+})
+);
+  
 
 // parse request to body-parser
 app.use(bodyparser.urlencoded({ extended : true}))

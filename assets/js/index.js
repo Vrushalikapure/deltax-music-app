@@ -1,3 +1,6 @@
+$(document).ready(function() {
+    $('#artists').select();
+});
 
 function span_click(object){
     var array = object.id.split('_')
@@ -77,7 +80,9 @@ $("#create_artitst").click(function(e){
 
     $.ajax(request).done(function(response){
         $('#close').click();
-        location.reload();
+        // location.reload();
+        $('#artists').append(`<option value="${response._id}">${response.name}</option>`);
+        $("#artists").selectpicker('refresh');
     })
 });
 
