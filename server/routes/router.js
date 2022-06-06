@@ -32,7 +32,7 @@ route.delete('/api/artists/:id', controller.deleteArtist);
 route.get('/api/songs/top', controller.findTop10Songs);
 route.get('/api/artists/top', controller.findTop10Artists);
 route.put('/api/songs/rating', controller.updateSongRating);
-
+route.post('/api/songs/multiple/rating', controller.updateMutipleSongRating);
 route.get('/api/songs/:id/image',  controller.getSongImage);
 
 

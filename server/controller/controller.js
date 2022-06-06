@@ -154,7 +154,9 @@ exports.findTop10Songs = (req, res)=>{
     SongDb.find().sort({"rating":-1}).limit(10)
     .populate("artists", "name")
             .then(songs => {
-               
+                for (let i = 0; i < songs.length; i++) {
+                    songs[i].img.val = songs[i].img.toString('base64');
+                  }
                 
                 res.send(songs)
             })
@@ -182,16 +184,10 @@ exports.updateSongRating = (req, res)=>{
                 artistIds.forEach(artistId => {
                     ArtistDb.findById(artistId)
                         .then(artistData =>{
-                            if(!artistData){
-                                res.status(404).send({ message : "Not found artist with id "+ id})
-                            }else{
-                                // console.log(data.rating);
-                                // console.log(req.body.rating);
+                            if(artistData){
                                 artistData.rating = (parseFloat(artistData.rating) + parseFloat(newSongRating))/2;
                                 artistData.rating = Math.round(artistData.rating * 100) / 100
-            
                             }
-            
                             ArtistDb.findByIdAndUpdate(artistId, artistData, { useFindAndModify: false})
                                 .catch(err =>{
                                     res.status(500).send({ message : "Error Update artist information"})
@@ -219,6 +215,66 @@ exports.updateSongRating = (req, res)=>{
         .catch(err =>{
             res.status(500).send({ message: "Erro retrieving song with id " + id})
         })
+}
+
+
+exports.updateMutipleSongRating = (req, res)=>{
+    if(!req.body){
+        return res
+            .status(400)
+            .send({ message : "Data to update can not be empty"})
+    }
+    console.log(req.body);
+    var ids = req.body.songs;
+    const newSongRating = req.body.rating;
+    if(!Array.isArray(ids)){
+        ids = [ids]
+    }
+    ids.forEach((id)=>{
+        SongDb.findById(id)
+        .then(song =>{
+            if(!song){
+                res.status(404).send({ message : "Not found song with id "+ id})
+            }else{
+                const artistIds = song.artists;
+                artistIds.forEach(artistId => {
+                    ArtistDb.findById(artistId)
+                        .then(artistData =>{
+                            if(artistData){
+                                artistData.rating = (parseFloat(artistData.rating) + parseFloat(newSongRating))/2;
+                                artistData.rating = Math.round(artistData.rating * 100) / 100
+                            }
+            
+                            ArtistDb.findByIdAndUpdate(artistId, artistData, { useFindAndModify: false})
+                                .catch(err =>{
+                                    res.status(500).send({ message : "Error Update artist information"})
+                                })
+                        })
+                        .catch(err =>{
+                            res.status(500).send({ message: "Erro retrieving artist with id " + id})
+                        })
+                });
+                song.rating = (parseFloat(song.rating) + parseFloat(newSongRating))/2;
+                song.rating = Math.round(song.rating * 100) / 100
+                SongDb.findByIdAndUpdate(id, song, { useFindAndModify: false})
+                    .then(data => {
+                        if(!data){
+                            res.status(404).send({ message : `Cannot Update song with ${id}. Maybe song not found!`})
+                        }else{
+                            res.redirect("/");
+                        }
+                    })
+                    .catch(err =>{
+                        res.status(500).send({ message : "Error Update song information"})
+                    })
+            }
+        })
+        .catch(err =>{
+            res.status(500).send({ message: "Erro retrieving song with id " + id})
+        })
+    })
+    
+    
 }
 
 

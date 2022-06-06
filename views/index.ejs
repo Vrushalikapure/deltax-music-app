@@ -13,12 +13,40 @@
                 </a>
             </div>
 
-            <div class="box-nav d-flex justify-between" style="float: right";>
+            <div class="box-nav d-flex justify-between" style="float: right; padding: auto;">
                 <form action="/logout" method="POST">
-                    <button class="text-gradient">Logout <span class="text-gradient"> <i class="fa-solid fa-arrow-right-from-bracket"></i></span></button>
+                    <button class="text-gradient">Logout <i class="fa-solid fa-arrow-right-from-bracket"></i></button>
                 </form>
             </div>
 
+        </br>
+        </br>
+        <div>
+            <form action="/api/songs/multiple/rating" method="POST" id="add_rating">
+                <div class="header">
+                    <h1>Rate Song</h1>
+                  </div>
+
+                  <select id="songs" name="songs" data-style="btn-default" class="selectpicker" multiple="multiple">
+
+                    <!-- for loop code start -->
+                    <% for(var i=0; i < songs.length; i++) { %>
+                    <option value="<%= songs[i]._id %>"><%= songs[i].name %></option>
+                    <% } %>
+                    </select>
+            </br>
+            </br>
+             <div class="box-nav d-flex justify-between">
+                <input type="number" name="rating" min="1" max="5" placeholder="between 1 and 5" style="width:50%;padding:4px;margin:-5px"/>
+                </div>
+
+        </br>
+        </br>
+                <div class="box-nav d-flex justify-between">
+                    <button type="submit" class="text-gradient">Rate (between 1 and 5)<i class="fa-solid fa-percent"></i></button>
+                </div>
+            </form>
+       </div>
             <div class="header">
                 <h1>Top 10 Songs</h1>
               </div>
